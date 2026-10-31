@@ -20,15 +20,22 @@ type MatchDetailsProps = {
   form: TeamForm;
   analysis: MatchAnalysis;
   onCycleResult: (side: keyof TeamForm, index: number) => void;
+  onClearForm: () => void;
 };
 
-export function MatchDetails({ match, form, analysis, onCycleResult }: MatchDetailsProps) {
+export function MatchDetails({ match, form, analysis, onCycleResult, onClearForm }: MatchDetailsProps) {
+  const hasForm = tally(form.home).played + tally(form.away).played > 0;
   const basis = analysis.form && analysis.meetings ? "oddsen, formen och de inbördes mötena" : "oddsen och formen";
 
   return (
     <div className="ml-12 flex flex-wrap gap-x-10 gap-y-7 rounded-xl border bg-card px-6 py-5.5">
       <div className="flex flex-[1_1_300px] flex-col gap-3.5">
-        <h3 className="text-base font-semibold">Form, äldst till vänster</h3>
+        <div className="flex min-h-8 items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">Form, äldst till vänster</h3>
+          <Button type="button" variant="outline" size="sm" disabled={!hasForm} onClick={onClearForm}>
+            Rensa
+          </Button>
+        </div>
         <FormSeries title={`${match.home} hemma`} results={form.home} onCycle={(i) => onCycleResult("home", i)} />
         <FormSeries title={`${match.away} borta`} results={form.away} onCycle={(i) => onCycleResult("away", i)} />
       </div>

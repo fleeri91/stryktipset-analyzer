@@ -4,17 +4,26 @@ import { useState } from "react";
 import { SIGNS, emptyForm, nextResult } from "@/lib/stryktips/model";
 import type { Coupon, TeamForm } from "@/lib/stryktips/types";
 import { MatchRow, ROW_GRID } from "./match-row";
+import { useStoredForms } from "./use-stored-forms";
 import { cn } from "@/lib/utils";
 
 export function CouponTable({ coupon }: { coupon: Coupon }) {
   const [openMatch, setOpenMatch] = useState<number | null>(coupon.matches[0]?.n ?? null);
-  const [forms, setForms] = useState<Record<number, TeamForm>>({});
+  const [forms, updateForms] = useStoredForms(coupon.round);
 
   function cycleResult(n: number, side: keyof TeamForm, index: number) {
-    setForms((prev) => {
+    updateForms((prev) => {
       const form = prev[n] ?? emptyForm();
       const results = form[side].with(index, nextResult(form[side][index]));
       return { ...prev, [n]: { ...form, [side]: results } };
+    });
+  }
+
+  function clearForm(n: number) {
+    updateForms((prev) => {
+      const next = { ...prev };
+      delete next[n];
+      return next;
     });
   }
 
@@ -39,6 +48,7 @@ export function CouponTable({ coupon }: { coupon: Coupon }) {
             open={openMatch === match.n}
             onOpenChange={(open) => setOpenMatch(open ? match.n : null)}
             onCycleResult={(side, index) => cycleResult(match.n, side, index)}
+            onClearForm={() => clearForm(match.n)}
           />
         ))}
       </div>

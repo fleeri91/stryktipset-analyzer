@@ -17,9 +17,10 @@ type MatchRowProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCycleResult: (side: keyof TeamForm, index: number) => void;
+  onClearForm: () => void;
 };
 
-export function MatchRow({ match, form, open, onOpenChange, onCycleResult }: MatchRowProps) {
+export function MatchRow({ match, form, open, onOpenChange, onCycleResult, onClearForm }: MatchRowProps) {
   const analysis = analyzeMatch(match, form);
   const formFilled = formModel(form) !== null;
 
@@ -57,7 +58,13 @@ export function MatchRow({ match, form, open, onOpenChange, onCycleResult }: Mat
       </div>
 
       <CollapsibleContent>
-        <MatchDetails match={match} form={form} analysis={analysis} onCycleResult={onCycleResult} />
+        <MatchDetails
+          match={match}
+          form={form}
+          analysis={analysis}
+          onCycleResult={onCycleResult}
+          onClearForm={onClearForm}
+        />
       </CollapsibleContent>
     </Collapsible>
   );
