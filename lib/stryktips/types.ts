@@ -19,16 +19,17 @@ export type Meeting = {
   sameVenue: boolean;
 };
 
+/** [at opening, now] in percent */
 export type Trend = {
-  /** SVG polyline points in a 120×32 viewBox */
-  odds: string;
-  folk: string;
+  odds: [number, number];
+  folk: [number, number];
 };
 
 export type CouponMatch = {
   n: number;
   home: string;
   away: string;
+  /** ISO timestamp */
   kickoff: string;
   /** Market probability from the odds, in percent */
   odds: Triple;

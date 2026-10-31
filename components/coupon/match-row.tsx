@@ -2,6 +2,7 @@
 
 import { ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { formatTime } from "@/lib/stryktips/format";
 import { analyzeMatch, formModel } from "@/lib/stryktips/model";
 import type { CouponMatch, TeamForm } from "@/lib/stryktips/types";
 import { cn } from "@/lib/utils";
@@ -40,7 +41,7 @@ export function MatchRow({ match, form, open, onOpenChange, onCycleResult }: Mat
               <span>{match.away}</span>
             </span>
             <span className="text-[13px] text-muted-foreground">
-              {match.kickoff}
+              {formatTime(match.kickoff)}
               {formFilled && ", form ifylld"}
             </span>
           </span>

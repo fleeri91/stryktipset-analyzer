@@ -10,8 +10,10 @@ import { cn } from "@/lib/utils";
 
 export function CouponTable() {
   const { data: coupon } = useSuspenseQuery(couponCache.options());
-  const [openMatch, setOpenMatch] = useState<number | null>(coupon.matches[0]?.n ?? null);
+  const [openMatch, setOpenMatch] = useState<number | null>(coupon?.matches[0]?.n ?? null);
   const [forms, setForms] = useState<Record<number, TeamForm>>({});
+
+  if (!coupon) return null;
 
   function cycleResult(n: number, side: keyof TeamForm, index: number) {
     setForms((prev) => {

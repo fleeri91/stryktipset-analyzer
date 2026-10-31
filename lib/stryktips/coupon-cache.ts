@@ -8,7 +8,7 @@ export const couponCache = {
   options: () =>
     queryOptions({
       queryKey: couponCache.key,
-      queryFn: async (): Promise<Coupon> => {
+      queryFn: async (): Promise<Coupon | null> => {
         const res = await fetch("/api/coupon");
         if (!res.ok) throw new Error("Failed to fetch coupon");
         return res.json();

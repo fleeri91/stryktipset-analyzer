@@ -99,7 +99,7 @@ export function analyzeMatch(match: CouponMatch, form: TeamForm): MatchAnalysis 
   ) as Triple;
 
   const signs = combined.map((probability, i) => {
-    const valueIndex = probability / match.folk[i];
+    const valueIndex = match.folk[i] ? probability / match.folk[i] : 0;
     return {
       probability,
       valueIndex,

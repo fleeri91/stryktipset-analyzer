@@ -49,8 +49,21 @@ type SignCellProps = {
   trend: Trend;
 };
 
+/** Shared y-scale for both lines so their levels can be compared */
+function trendRange(trend: Trend): [number, number] {
+  const values = [...trend.odds, ...trend.folk];
+  return [Math.min(...values) - 3, Math.max(...values) + 3];
+}
+
+/** Opening to now, higher share drawn higher */
+function line([start, now]: [number, number], [min, max]: [number, number]) {
+  const y = (v: number) => (32 - ((v - min) / (max - min)) * 32).toFixed(1);
+  return `0,${y(start)} 120,${y(now)}`;
+}
+
 export function SignCell({ index, sign, folk, trend }: SignCellProps) {
   const style = BUCKET_STYLES[sign.bucket];
+  const range = trendRange(trend);
 
   return (
     <div className={cn("flex flex-col gap-2.25 rounded-lg border border-foreground/6 px-3.5 pt-3 pb-2.75", style.cell)}>
@@ -81,12 +94,12 @@ export function SignCell({ index, sign, folk, trend }: SignCellProps) {
 
       <svg className="block h-7.5 w-full overflow-visible" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true">
         <polyline
-          points={trend.folk}
+          points={line(trend.folk, range)}
           vectorEffect="non-scaling-stroke"
           className={cn("fill-none stroke-2 [stroke-linecap:round] [stroke-linejoin:round]", style.line)}
         />
         <polyline
-          points={trend.odds}
+          points={line(trend.odds, range)}
           vectorEffect="non-scaling-stroke"
           strokeDasharray="3 3"
           className="fill-none stroke-foreground stroke-[1.25] opacity-85 [stroke-linecap:round] [stroke-linejoin:round]"

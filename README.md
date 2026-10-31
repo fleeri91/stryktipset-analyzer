@@ -8,9 +8,17 @@ Next.js app for analyzing football results for Stryktipset.
 - Tailwind CSS + shadcn/ui (Base UI)
 - TanStack Query
 
+## Environment
+
+| Variable | Description |
+|---|---|
+| `STRYKTIPSET_API_KEY` | Access key for Svenska Spel's API (open round, odds, the public's picks). Server-only. |
+
+Put it in `.env` (git-ignored).
+
 ## Data
 
-`data/<season>/en.<tier>.json` — English league results per season (`en.1` = Premier League, `en.2`–`en.4` = EFL tiers).
+`data/<season>/en.<tier>.json` — English league results per season (`en.1` = Premier League, `en.2`–`en.4` = EFL tiers). Used for head-to-head meetings from the latest season.
 
 ## Data fetching (TanStack Query)
 

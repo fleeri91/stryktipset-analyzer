@@ -19,6 +19,15 @@ export default function Home() {
 
 async function CouponPage() {
   const coupon = await getCoupon();
+  if (!coupon) {
+    return (
+      <main className="flex flex-col gap-3">
+        <span className="text-[17px] font-extrabold tracking-tight">Stryktipsanalys</span>
+        <p className="text-[19px] text-ink-2">Ingen omgång är öppen just nu.</p>
+      </main>
+    );
+  }
+
   const state = await dehydrate([{ queryKey: couponCache.key, data: coupon }], { tags: [couponCache.tag] });
 
   return (

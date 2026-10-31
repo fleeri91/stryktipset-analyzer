@@ -2,18 +2,23 @@ import "server-only";
 
 import { cacheLife, cacheTag } from "next/cache";
 import { couponCache } from "./coupon-cache";
-import { DEMO_COUPON } from "./demo-coupon";
 import { getMeetings } from "./meetings";
+import { getOpenDraw } from "./svenska-spel";
 import type { Coupon } from "./types";
 
-export async function getCoupon(): Promise<Coupon> {
+/** The open round with meetings from the dataset, or null between rounds */
+export async function getCoupon(): Promise<Coupon | null> {
   "use cache";
-  cacheLife("hours");
+  // Odds and the public's picks move until the round closes
+  cacheLife("minutes");
   cacheTag(couponCache.tag);
 
-  const meetings = await getMeetings(DEMO_COUPON.matches);
+  const draw = await getOpenDraw();
+  if (!draw) return null;
+
+  const meetings = await getMeetings(draw.matches);
   return {
-    ...DEMO_COUPON,
-    matches: DEMO_COUPON.matches.map((match, i) => ({ ...match, meetings: meetings[i] })),
+    ...draw,
+    matches: draw.matches.map((match, i) => ({ ...match, meetings: meetings[i] })),
   };
 }
