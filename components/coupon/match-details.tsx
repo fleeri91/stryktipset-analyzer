@@ -7,11 +7,12 @@ import { cn } from "@/lib/utils";
 
 const RESULT_WORD: Record<FormResult, string> = { V: "vinst", O: "oavgjort", F: "förlust", "": "ej ifylld" };
 
+// dark: variants override the outline button's own dark-mode background
 const RESULT_STYLE: Record<FormResult, string> = {
   "": "",
-  V: "border-foreground bg-foreground text-background hover:bg-foreground/90 hover:text-background",
-  O: "border-secondary bg-secondary hover:bg-secondary/80",
-  F: "border-2 border-ink-2 text-ink-2",
+  V: "border-[#56657b] dark:bg-[#56657b] dark:hover:bg-[#56657b]/80",
+  O: "border-secondary dark:bg-secondary dark:hover:bg-secondary/80",
+  F: "border-2 border-ink-2",
 };
 
 type MatchDetailsProps = {
@@ -100,7 +101,7 @@ function FormSeries({ title, results, onCycle }: FormSeriesProps) {
             aria-label={`${title}, match ${i + 1}: ${RESULT_WORD[result]}`}
             onClick={() => onCycle(i)}
             className={cn(
-              "size-11 rounded-[7px] border-input bg-transparent text-base font-bold dark:bg-transparent",
+              "size-11 rounded-[7px] border-input bg-transparent text-base font-bold text-foreground dark:bg-transparent",
               "hover:border-muted-foreground",
               RESULT_STYLE[result],
             )}
