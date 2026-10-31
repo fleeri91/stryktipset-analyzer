@@ -9,6 +9,9 @@
   --color-amber: var(--amber);
   --color-amber-ink: var(--amber-ink);
   --color-chalk: var(--chalk);
+  /* Trend direction: good and bad for a sign */
+  --color-positive: var(--positive);
+  --color-negative: var(--negative);
   --color-ink-2: var(--ink-2);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
@@ -81,6 +84,8 @@
   --amber: #f2b54a;
   --amber-ink: #f7c66b;
   --chalk: #8db4e8;
+  --positive: #15803d;
+  --negative: #c2410c;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -111,6 +116,8 @@
   --input: #3b4758;
   --ring: #f7c66b;
   --ink-2: #bac3cf;
+  --positive: #6fd39a;
+  --negative: #f2897a;
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);

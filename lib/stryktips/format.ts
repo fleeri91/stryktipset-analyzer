@@ -32,3 +32,10 @@ export function formatTimeLeft(ms: number) {
   ].filter(Boolean);
   return "om " + (parts.length > 1 ? parts.slice(0, -1).join(", ") + " och " + parts.at(-1) : parts[0]);
 }
+
+/** Signed change with a Swedish decimal comma: "+3", "−1,2", "±0" */
+export function formatChange(value: number, decimals: number) {
+  const rounded = Number(value.toFixed(decimals));
+  if (rounded === 0) return "±0";
+  return (rounded > 0 ? "+" : "−") + formatNumber(Math.abs(rounded), decimals);
+}

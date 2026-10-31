@@ -13,12 +13,21 @@ function series(points: TrendPoint[]) {
   return [...byTime.values()].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
 }
 
-/** Places the stored readings between the opening and current values from the API */
+/**
+ * Combines the API's reference points with the stored 10-minute readings. Once readings exist,
+ * reference points from before the first reading (opening odds, the public's reference time)
+ * are dropped, so both lines share the window the readings cover instead of being squeezed
+ * against the right edge of a days-long axis.
+ */
 function withSnapshots(trend: Trend, snapshots: Snapshot[], n: number, sign: number): Trend {
   const readings = snapshots.flatMap((s) => s.matches.filter((m) => m.n === n).map((m) => ({ at: s.at, m })));
+  if (readings.length === 0) return trend;
+
+  const from = Date.parse(readings[0].at);
+  const inWindow = (points: TrendPoint[]) => points.filter((p) => Date.parse(p.at) >= from);
   return {
-    odds: series([...trend.odds, ...readings.map(({ at, m }) => ({ at, value: m.odds[sign] }))]),
-    folk: series([...trend.folk, ...readings.map(({ at, m }) => ({ at, value: m.folk[sign] }))]),
+    odds: series([...inWindow(trend.odds), ...readings.map(({ at, m }) => ({ at, value: m.odds[sign] }))]),
+    folk: series([...inWindow(trend.folk), ...readings.map(({ at, m }) => ({ at, value: m.folk[sign] }))]),
   };
 }
 
