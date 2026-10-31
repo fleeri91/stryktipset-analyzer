@@ -1,0 +1,50 @@
+"use client";
+
+import { useState } from "react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { couponCache } from "@/lib/stryktips/coupon-cache";
+import { SIGNS, emptyForm, nextResult } from "@/lib/stryktips/model";
+import type { TeamForm } from "@/lib/stryktips/types";
+import { MatchRow, ROW_GRID } from "./match-row";
+import { cn } from "@/lib/utils";
+
+export function CouponTable() {
+  const { data: coupon } = useSuspenseQuery(couponCache.options());
+  const [openMatch, setOpenMatch] = useState<number | null>(coupon.matches[0]?.n ?? null);
+  const [forms, setForms] = useState<Record<number, TeamForm>>({});
+
+  function cycleResult(n: number, side: keyof TeamForm, index: number) {
+    setForms((prev) => {
+      const form = prev[n] ?? emptyForm();
+      const results = form[side].with(index, nextResult(form[side][index]));
+      return { ...prev, [n]: { ...form, [side]: results } };
+    });
+  }
+
+  return (
+    <div className="-mx-1 overflow-x-auto px-1">
+      <div className="flex min-w-[780px] flex-col gap-2">
+        <div aria-hidden="true" className={cn(ROW_GRID, "items-end pb-1.5")}>
+          <span />
+          <span />
+          {SIGNS.map((sign) => (
+            <span key={sign} className="pl-3.5 text-[30px] leading-none font-extrabold">
+              {sign}
+            </span>
+          ))}
+        </div>
+
+        {coupon.matches.map((match) => (
+          <MatchRow
+            key={match.n}
+            match={match}
+            form={forms[match.n] ?? emptyForm()}
+            open={openMatch === match.n}
+            onOpenChange={(open) => setOpenMatch(open ? match.n : null)}
+            onCycleResult={(side, index) => cycleResult(match.n, side, index)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
