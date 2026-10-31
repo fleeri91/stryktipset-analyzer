@@ -1,19 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { couponCache } from "@/lib/stryktips/coupon-cache";
 import { SIGNS, emptyForm, nextResult } from "@/lib/stryktips/model";
-import type { TeamForm } from "@/lib/stryktips/types";
+import type { Coupon, TeamForm } from "@/lib/stryktips/types";
 import { MatchRow, ROW_GRID } from "./match-row";
 import { cn } from "@/lib/utils";
 
-export function CouponTable() {
-  const { data: coupon } = useSuspenseQuery(couponCache.options());
-  const [openMatch, setOpenMatch] = useState<number | null>(coupon?.matches[0]?.n ?? null);
+export function CouponTable({ coupon }: { coupon: Coupon }) {
+  const [openMatch, setOpenMatch] = useState<number | null>(coupon.matches[0]?.n ?? null);
   const [forms, setForms] = useState<Record<number, TeamForm>>({});
-
-  if (!coupon) return null;
 
   function cycleResult(n: number, side: keyof TeamForm, index: number) {
     setForms((prev) => {

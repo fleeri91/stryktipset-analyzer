@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { formatNumber } from "@/lib/stryktips/format";
 import { SIGNS, type Bucket, type SignAnalysis } from "@/lib/stryktips/model";
-import type { Trend } from "@/lib/stryktips/types";
+import type { Trend, TrendPoint } from "@/lib/stryktips/types";
 import { cn } from "@/lib/utils";
 
 const BUCKET_STYLES: Record<Bucket, { cell: string; fill: string; text: string; line: string; label: string }> = {
@@ -49,21 +49,28 @@ type SignCellProps = {
   trend: Trend;
 };
 
-/** Shared y-scale for both lines so their levels can be compared */
-function trendRange(trend: Trend): [number, number] {
-  const values = [...trend.odds, ...trend.folk];
-  return [Math.min(...values) - 3, Math.max(...values) + 3];
+type Scale = { x: (at: string) => string; y: (value: number) => string };
+
+/** Shared time and value scales so both lines can be compared, higher share drawn higher */
+function trendScale(trend: Trend): Scale {
+  const points = [...trend.odds, ...trend.folk];
+  const times = points.map((p) => Date.parse(p.at));
+  const values = points.map((p) => p.value);
+  const [t0, t1] = [Math.min(...times), Math.max(...times)];
+  const [v0, v1] = [Math.min(...values) - 3, Math.max(...values) + 3];
+  return {
+    x: (at) => (t1 > t0 ? ((Date.parse(at) - t0) / (t1 - t0)) * 120 : 0).toFixed(1),
+    y: (value) => (32 - ((value - v0) / (v1 - v0)) * 32).toFixed(1),
+  };
 }
 
-/** Opening to now, higher share drawn higher */
-function line([start, now]: [number, number], [min, max]: [number, number]) {
-  const y = (v: number) => (32 - ((v - min) / (max - min)) * 32).toFixed(1);
-  return `0,${y(start)} 120,${y(now)}`;
+function line(points: TrendPoint[], scale: Scale) {
+  return points.map((p) => `${scale.x(p.at)},${scale.y(p.value)}`).join(" ");
 }
 
 export function SignCell({ index, sign, folk, trend }: SignCellProps) {
   const style = BUCKET_STYLES[sign.bucket];
-  const range = trendRange(trend);
+  const scale = trendScale(trend);
 
   return (
     <div className={cn("flex flex-col gap-2.25 rounded-lg border border-foreground/6 px-3.5 pt-3 pb-2.75", style.cell)}>
@@ -94,12 +101,12 @@ export function SignCell({ index, sign, folk, trend }: SignCellProps) {
 
       <svg className="block h-7.5 w-full overflow-visible" viewBox="0 0 120 32" preserveAspectRatio="none" aria-hidden="true">
         <polyline
-          points={line(trend.folk, range)}
+          points={line(trend.folk, scale)}
           vectorEffect="non-scaling-stroke"
           className={cn("fill-none stroke-2 [stroke-linecap:round] [stroke-linejoin:round]", style.line)}
         />
         <polyline
-          points={line(trend.odds, range)}
+          points={line(trend.odds, scale)}
           vectorEffect="non-scaling-stroke"
           strokeDasharray="3 3"
           className="fill-none stroke-foreground stroke-[1.25] opacity-85 [stroke-linecap:round] [stroke-linejoin:round]"

@@ -19,10 +19,17 @@ export type Meeting = {
   sameVenue: boolean;
 };
 
-/** [at opening, now] in percent */
+export type TrendPoint = {
+  /** ISO timestamp */
+  at: string;
+  /** Percent */
+  value: number;
+};
+
+/** Oldest first */
 export type Trend = {
-  odds: [number, number];
-  folk: [number, number];
+  odds: TrendPoint[];
+  folk: TrendPoint[];
 };
 
 export type CouponMatch = {

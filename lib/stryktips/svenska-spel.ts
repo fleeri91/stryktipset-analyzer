@@ -14,12 +14,15 @@ type ApiEvent = {
   sportEventStart: string;
   odds: Outcomes | null;
   startOdds: Outcomes | null;
-  distribution: (Outcomes & { date: string; refHome: string; refDraw: string; refAway: string }) | null;
+  distribution:
+    | (Outcomes & { date: string; refDate: string; refHome: string; refDraw: string; refAway: string })
+    | null;
 };
 
 type ApiDraw = {
   drawNumber: number;
   drawState: string;
+  openTime: string;
   closeTime: string;
   events: ApiEvent[];
 };
@@ -46,7 +49,8 @@ function oddsToProbability(odds: Outcomes): Triple {
   return implied.map((p) => (p / total) * 100) as Triple;
 }
 
-function toMatch(event: ApiEvent): Omit<CouponMatch, "meetings"> {
+/** Trend from opening to now; stored readings are added between by the caller */
+function toMatch(event: ApiEvent, openTime: string, fetchedAt: string): Omit<CouponMatch, "meetings"> {
   const team = (type: "home" | "away") => event.participants.find((p) => p.type === type)?.name ?? "";
   const odds = event.odds ? oddsToProbability(event.odds) : ([0, 0, 0] as Triple);
   const startOdds = event.startOdds ? oddsToProbability(event.startOdds) : odds;
@@ -62,8 +66,16 @@ function toMatch(event: ApiEvent): Omit<CouponMatch, "meetings"> {
     odds,
     folk,
     trend: [0, 1, 2].map((i) => ({
-      odds: [startOdds[i], odds[i]],
-      folk: [folkRef[i], folk[i]],
+      odds: [
+        { at: openTime, value: startOdds[i] },
+        { at: fetchedAt, value: odds[i] },
+      ],
+      folk: d
+        ? [
+            { at: d.refDate, value: folkRef[i] },
+            { at: d.date, value: folk[i] },
+          ]
+        : [],
     })) as [Trend, Trend, Trend],
   };
 }
@@ -73,6 +85,7 @@ export async function getOpenDraw(): Promise<OpenDraw | null> {
   const key = process.env.STRYKTIPSET_API_KEY;
   if (!key) throw new Error("STRYKTIPSET_API_KEY is not set");
 
+  const fetchedAt = new Date().toISOString();
   const res = await fetch(`${API_URL}?accesskey=${encodeURIComponent(key)}`);
   // Never include the URL in errors, it carries the access key
   if (!res.ok) throw new Error(`Svenska Spel API responded ${res.status}`);
@@ -93,6 +106,6 @@ export async function getOpenDraw(): Promise<OpenDraw | null> {
     round: draw.drawNumber,
     closesAt: draw.closeTime,
     updatedAt: updatedAt ?? draw.closeTime,
-    matches: draw.events.filter((e) => !e.cancelled).map(toMatch),
+    matches: draw.events.filter((e) => !e.cancelled).map((e) => toMatch(e, draw.openTime, fetchedAt)),
   };
 }
