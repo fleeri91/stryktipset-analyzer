@@ -72,18 +72,17 @@ function resolveTeam(shortName: string, keys: string[]) {
 function meetings(results: Result[], home: string | null, away: string | null): Meeting[] {
   if (!home || !away) return [];
   return results
-    .filter((m) => (m.key1 === home && m.key2 === away) || (m.key1 === away && m.key2 === home))
+    .filter((m) => m.key1 === home && m.key2 === away)
     .map((m) => ({
       date: m.date,
       homeTeam: m.team1,
       awayTeam: m.team2,
       homeGoals: m.goals[0],
       awayGoals: m.goals[1],
-      sameVenue: m.key1 === home,
     }));
 }
 
-/** Meetings between each fixture's teams across all seasons in `data/` */
+/** Earlier matches with the same home and away team as each fixture, across all seasons in `data/` */
 export async function getMeetings(fixtures: Fixture[]): Promise<Meeting[][]> {
   allSeasons ??= loadAllSeasons().catch((error) => {
     allSeasons = undefined;

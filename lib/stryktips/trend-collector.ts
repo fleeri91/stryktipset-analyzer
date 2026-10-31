@@ -10,10 +10,14 @@ export async function collectTrend() {
   const draw = await getOpenDraw();
   if (!draw) return;
 
-  await appendSnapshot(draw.round, {
-    at: new Date().toISOString(),
-    matches: draw.matches.map((m) => ({ n: m.n, odds: round1(m.odds), folk: m.folk })),
-  });
+  await appendSnapshot(
+    draw.round,
+    {
+      at: new Date().toISOString(),
+      matches: draw.matches.map((m) => ({ n: m.n, odds: round1(m.odds), folk: m.folk })),
+    },
+    (COUPON_REFRESH_SECONDS * 1000) / 2,
+  );
 }
 
 async function collectSafely() {

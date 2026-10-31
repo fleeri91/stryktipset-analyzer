@@ -24,8 +24,11 @@ export async function readSnapshots(round: number): Promise<Snapshot[]> {
   }
 }
 
-export async function appendSnapshot(round: number, snapshot: Snapshot) {
+/** Skips the snapshot if the latest one is younger than `minGapMs`, e.g. when two servers collect */
+export async function appendSnapshot(round: number, snapshot: Snapshot, minGapMs = 0) {
   const snapshots = await readSnapshots(round);
+  const latest = snapshots.at(-1);
+  if (latest && Date.parse(snapshot.at) - Date.parse(latest.at) < minGapMs) return;
   snapshots.push(snapshot);
 
   await mkdir(TREND_DIR, { recursive: true });

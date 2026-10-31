@@ -66,20 +66,14 @@ export function formModel(form: TeamForm): Triple | null {
   return [(1 - draw) * homeShare * 100, draw * 100, (1 - draw) * (1 - homeShare) * 100];
 }
 
-/** Meetings at the same venue count fully, reversed fixtures half. Shrunk towards the odds. */
+/** Needs at least two meetings with the same home team. Shrunk towards the odds. */
 export function meetingsModel(meetings: Meeting[], odds: Triple): Triple | null {
+  if (meetings.length < 2) return null;
   const counts: Triple = [0, 0, 0];
-  let total = 0;
   for (const m of meetings) {
-    const homeGoals = m.sameVenue ? m.homeGoals : m.awayGoals;
-    const awayGoals = m.sameVenue ? m.awayGoals : m.homeGoals;
-    const sign = homeGoals > awayGoals ? 0 : homeGoals === awayGoals ? 1 : 2;
-    const weight = m.sameVenue ? 1 : 0.5;
-    counts[sign] += weight;
-    total += weight;
+    counts[m.homeGoals > m.awayGoals ? 0 : m.homeGoals === m.awayGoals ? 1 : 2]++;
   }
-  if (total < 1.5) return null;
-  return counts.map((c, i) => ((c + (3 * odds[i]) / 100) / (total + 3)) * 100) as Triple;
+  return counts.map((c, i) => ((c + (3 * odds[i]) / 100) / (meetings.length + 3)) * 100) as Triple;
 }
 
 function bucketFor(valueIndex: number): Bucket {

@@ -15,8 +15,6 @@ export type Meeting = {
   awayTeam: string;
   homeGoals: number;
   awayGoals: number;
-  /** Same home team as the coupon match */
-  sameVenue: boolean;
 };
 
 export type TrendPoint = {
